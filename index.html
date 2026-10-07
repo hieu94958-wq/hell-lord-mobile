@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thông Báo Sự Kiện Địa Ngục - Lords Mobile</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent-color: #ef4444;
+            --accent-hover: #dc2626;
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --border-color: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            color: var(--accent-color);
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .timer-card {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border: 2px solid var(--accent-color);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2);
+        }
+
+        .timer-title {
+            font-size: 1rem;
+            color: var(--text-sub);
+            margin-bottom: 8px;
+        }
+
+        .countdown {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #f59e0b;
+            font-family: monospace;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+        }
+
+        .filter-btn {
+            background: var(--card-bg);
+            color: var(--text-sub);
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+
+        .filter-btn.active, .filter-btn:hover {
+            background: var(--accent-color);
+            color: #fff;
+            border-color: var(--accent-color);
+        }
+
+        .event-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .event-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 16px;
+            border-left: 5px solid var(--accent-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.2s;
+        }
+
+        .event-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .event-info h3 {
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+        }
+
+        .event-info p {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+        }
+
+        .badge {
+            background: rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .watcher-badge {
+            background: rgba(16, 185, 129, 0.2);
+            color: #6ee7b7;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>🔥 Sự Kiện Địa Ngục</h1>
+            <p style="color: var(--text-sub); font-size: 0.9rem;">Lords Mobile Event Tracker</p>
+        </header>
+
+        <!-- Đồng hồ đếm ngược -->
+        <div class="timer-card">
+            <div class="timer-title" id="timer-status">Thời gian còn lại của đợt hiện tại:</div>
+            <div class="countdown" id="countdown">55:00</div>
+        </div>
+
+        <!-- Bộ lọc sự kiện -->
+        <div class="filter-group">
+            <button class="filter-btn active" onclick="filterEvents('all')">Tất cả</button>
+            <button class="filter-btn" onclick="filterEvents('research')">Nghiên cứu</button>
+            <button class="filter-btn" onclick="filterEvents('train')">Huấn luyện</button>
+
+            <button class="filter-btn" onclick="filterEvents('watcher')">Rồng Watcher 🐉</button>
+        </div>
+
+        <!-- Danh sách các sự kiện -->
+        <div class="event-list" id="event-list">
+            <!-- Dữ liệu sự kiện sẽ được render tự động bằng JS -->
+        </div>
+    </div>
+
+    <script>
+        // Danh sách mẫu các sự kiện Địa Ngục trong Lords Mobile
+        const eventsData = [
+            { id: 1, name: "Nghiên cứu & Xây dựng", category: "research", reward: "Huy hiệu Tướng / Ngọc", watcher: false },
+            { id: 2, name: "Huấn luyện Quân lính", category: "train", reward: "Tốc độ / Nguyên liệu", watcher: false },
+            { id: 3, name: "Nghiên cứu + Rồng Watcher", category: "research", reward: "Mảnh Tướng Watcher 🐉", watcher: true },
+            { id: 4, name: "Mở Rương Luyện Kim & Săn Quái", category: "monster", reward: "Ngọc & Rương Trang bị", watcher: false },
+            { id: 5, name: "Huấn luyện + Rồng Watcher", category: "train", reward: "Mảnh Tướng Watcher 🐉", watcher: true },
+        ];
+
+        let currentFilter = 'all';
+
+        // Hàm tính thời gian đếm ngược đợt sự kiện (Chu kỳ 1 tiếng)
+        function updateTimer() {
+            const now = new Date();
+            const minutes = now.getMinutes();
+            const seconds = now.getSeconds();
+
+            let remainingMinutes;
+            let remainingSeconds = 59 - seconds;
+
+            const statusElem = document.getElementById('timer-status');
+
+            // 55 phút đầu là thời gian sự kiện, 5 phút cuối là nghỉ chuyển ca
+            if (minutes < 55) {
+                statusElem.innerText = "Thời gian sự kiện còn lại:";
+                remainingMinutes = 54 - minutes;
+            } else {
+                statusElem.innerText = "Thời gian chờ sự kiện tiếp theo:";
+                remainingMinutes = 59 - minutes;
+            }
+
+            const mStr = String(remainingMinutes).padStart(2, '0');
+            const sStr = String(remainingSeconds).padStart(2, '0');
+
+            document.getElementById('countdown').innerText = `${mStr}:${sStr}`;
+        }
+
+        // Hàm hiển thị danh sách sự kiện
+        function renderEvents() {
+            const listElem = document.getElementById('event-list');
+            listElem.innerHTML = '';
+
+            const filtered = eventsData.filter(item => {
+                if (currentFilter === 'all') return true;
+                if (currentFilter === 'watcher') return item.watcher;
+                return item.category === currentFilter;
+            });
+
+            if (filtered.length === 0) {
+                listElem.innerHTML = `<p style="text-align: center; color: var(--text-sub);">Không tìm thấy sự kiện phù hợp.</p>`;
+                return;
+            }
+
+            filtered.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'event-card';
+                card.innerHTML = `
+                    <div class="event-info">
+                        <h3>${item.name}</h3>
+                        <p>Phần thưởng chính: ${item.reward}</p>
+                    </div>
+                    <div>
+                        ${item.watcher ? '<span class="badge watcher-badge">Watcher</span>' : '<span class="badge">Địa Ngục</span>'}
+                    </div>
+                `;
+                listElem.appendChild(card);
+            });
+        }
+
+        // Hàm xử lý lọc sự kiện
+        function filterEvents(category) {
+            currentFilter = category;
+            
+            // Cập nhật trạng thái nút
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            renderEvents();
+        }
+
+        // Khởi chạy ứng dụng
+        setInterval(updateTimer, 1000);
+        updateTimer();
+        renderEvents();
+    </script>
+</body>
+</html>
